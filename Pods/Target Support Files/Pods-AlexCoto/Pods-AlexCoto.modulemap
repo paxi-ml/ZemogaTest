@@ -1,0 +1,6 @@
+framework module Pods_AlexCoto {
+  umbrella header "Pods-AlexCoto-umbrella.h"
+
+  export *
+  module * { export * }
+}
