@@ -35,4 +35,11 @@ class PostCell:UITableViewCell {
         self.unfavoriteButton?.isHidden = true
         self.delegate?.didRemoveFavorite(self)
     }
+    
+    func populateCell(_ post:Post) {
+        self.titleLabel?.text = post.title
+        self.commentLabel?.text = post.body
+        self.unfavoriteButton?.isHidden = !post.favorite
+        self.favoriteButton?.isHidden = post.favorite
+    }
 }

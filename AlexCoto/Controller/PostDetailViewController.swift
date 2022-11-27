@@ -49,8 +49,7 @@ class PostDetailViewController:UIViewController, UITableViewDelegate, UITableVie
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let cell = tableView.dequeueReusableCell(withIdentifier: CommentCell.identifier, for: indexPath) as? CommentCell {
             let comment = self.comments[indexPath.row]
-            cell.emailLabel?.text = comment.name
-            cell.commentLabel?.text = comment.body
+            cell.populateCell(comment)
             return cell
         }
         //This shouldn't happen
@@ -78,22 +77,8 @@ class PostDetailViewController:UIViewController, UITableViewDelegate, UITableVie
             case let .success(value):
                 if let dict = value as? [String:Any] {
                     self.user = User()
-                    self.user?.name = (dict["name"] as? String) ?? ""
-                    self.user?.username = (dict["username"] as? String) ?? ""
-                    self.user?.email = (dict["email"] as? String) ?? ""
-                    self.user?.phone = (dict["phone"] as? String) ?? ""
-                    let addressDict = dict["address"] as? [String:Any] ?? [:]
-                    self.user?.address = Address()
-                    self.user?.address?.street = (addressDict["street"] as? String) ?? ""
-                    self.user?.address?.city = (addressDict["city"] as? String) ?? ""
-                    let companyDict = dict["company"] as? [String:Any] ?? [:]
-                    self.user?.companyName = (companyDict["name"] as? String) ?? ""
-                    self.nameLabel?.text = "Name: \(self.user?.name ?? "")"
-                    self.usernameLabel?.text = "Username: \(self.user?.username ?? "")"
-                    self.phoneLabel?.text = "Phone: \(self.user?.phone ?? "")"
-                    self.emailLabel?.text = "Email: \(self.user?.email ?? "")"
-                    self.addressLabel?.text = "Address: \(self.user?.address?.street ?? ""),\(self.user?.address?.city ?? "")"
-                    self.companyLabel?.text = "Company: \(self.user?.companyName ?? "")"
+                    self.user?.populateWithDict(dict)
+                    self.populateUserInfo()
                 }
             case let .failure(error):
                 return
@@ -114,6 +99,16 @@ class PostDetailViewController:UIViewController, UITableViewDelegate, UITableVie
                 return
             }
         }
+    }
+    
+    func populateUserInfo() {
+        //This is normally done on the main thread however since the app is pretty straight-forward is being reflected right away anyway, so I avoid main thread calls unless totally necessary.
+        self.nameLabel?.text = "Name: \(self.user?.name ?? "")"
+        self.usernameLabel?.text = "Username: \(self.user?.username ?? "")"
+        self.phoneLabel?.text = "Phone: \(self.user?.phone ?? "")"
+        self.emailLabel?.text = "Email: \(self.user?.email ?? "")"
+        self.addressLabel?.text = "Address: \(self.user?.address?.street ?? ""),\(self.user?.address?.city ?? "")"
+        self.companyLabel?.text = "Company: \(self.user?.companyName ?? "")"
     }
     
     func registerNibs() {

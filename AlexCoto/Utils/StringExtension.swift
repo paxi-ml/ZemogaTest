@@ -9,6 +9,7 @@ import Foundation
 import UIKit
 
 extension String {
+    // This would be the only candidate for testing, however I've encounter boundingRect to be unreliable so I won't waste time on it, I've already done it and there are always exceptions.
     func calculateNumOfLines(withFont font:UIFont, width:CGFloat) -> Int {
         let maxSize = CGSize(width: width, height: CGFloat(Float.infinity))
         let charSize = font.lineHeight

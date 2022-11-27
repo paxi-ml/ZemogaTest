@@ -18,4 +18,17 @@ class User: NSObject {
     var companyName:String = ""
     var companyMotto:String = ""
     var companyBS:String = ""
+    
+    func populateWithDict(_ dict:[String:Any]) {
+        self.name = (dict["name"] as? String) ?? ""
+        self.username = (dict["username"] as? String) ?? ""
+        self.email = (dict["email"] as? String) ?? ""
+        self.phone = (dict["phone"] as? String) ?? ""
+        let addressDict = dict["address"] as? [String:Any] ?? [:]
+        self.address = Address()
+        self.address?.street = (addressDict["street"] as? String) ?? ""
+        self.address?.city = (addressDict["city"] as? String) ?? ""
+        let companyDict = dict["company"] as? [String:Any] ?? [:]
+        self.companyName = (companyDict["name"] as? String) ?? ""
+    }
 }

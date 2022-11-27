@@ -23,7 +23,6 @@ class PostsViewController: UITableViewController, PostCellDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.loadOfflineData()
     }
 
     // MARK: - Table functions
@@ -39,10 +38,7 @@ class PostsViewController: UITableViewController, PostCellDelegate {
         if let cell = tableView.dequeueReusableCell(withIdentifier: PostCell.identifier, for: indexPath) as? PostCell {
             let post = self.posts[indexPath.row]
             cell.delegate = self
-            cell.titleLabel?.text = post.title
-            cell.commentLabel?.text = post.body
-            cell.unfavoriteButton?.isHidden = !post.favorite
-            cell.favoriteButton?.isHidden = post.favorite
+            cell.populateCell(post)
             return cell
         }
         //This shouldn't happen
@@ -114,21 +110,9 @@ class PostsViewController: UITableViewController, PostCellDelegate {
     }
     
     func loadOfflineData() {
-        let postFetch: NSFetchRequest<PostMO> = PostMO.fetchRequest()
-        do {
-            if let managedContext = (UIApplication.shared.delegate as? AppDelegate)?.coreDataManager.managedContext {
-                self.posts.removeAll()
-                let results = try managedContext.fetch(postFetch)
-                for result in results {
-                    let post = Post()
-                    post.title = result.title ?? ""
-                    //In here we parse all the rest of the attributes
-                    self.posts.append(post)
-                }
-            }
-        } catch let error as NSError {
-            print("Fetch error: \(error) description: \(error.userInfo)")
-        }
+        self.posts.removeAll()
+        self.posts = (UIApplication.shared.delegate as? AppDelegate)?.coreDataManager.fetchPosts() ?? []
+        self.tableView.reloadData()
     }
     
     func loadData() {
@@ -150,18 +134,10 @@ class PostsViewController: UITableViewController, PostCellDelegate {
                 if let array = value as? [[String:Any]] {
                     for dict in array {
                         let post = Post()
-                        post.title = (dict["title"] as? String) ?? ""
-                        post.body = (dict["body"] as? String) ?? ""
-                        post.userId = (dict["userId"] as? Int) ?? -1
-                        post.postId = (dict["id"] as? Int) ?? -1
+                        post.populateWithDict(dict)
                         self.posts.append(post)
                         
-                        if let managedContext = (UIApplication.shared.delegate as? AppDelegate)?.coreDataManager.managedContext {
-                            let postMO = PostMO(context: managedContext)
-                            postMO.setValue(post.title, forKey: #keyPath(PostMO.title))
-                            //In here we can save all other values
-                            (UIApplication.shared.delegate as? AppDelegate)?.coreDataManager.saveContext()
-                        }
+                        (UIApplication.shared.delegate as? AppDelegate)?.coreDataManager.savePost(post)
                     }
                     self.tableView.reloadData()
                 }
